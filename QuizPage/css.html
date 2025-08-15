@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Css Quiz</title>
+  <style>
+    /* Your existing CSS styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .quiz-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 25px;
+      padding: 40px 30px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      position: relative;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .quiz-title {
+      color: #764ba2;
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    #question-text {
+      color: #333;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+
+    #options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .option-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 15px 20px;
+      border-radius: 15px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .option-btn.correct {
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+      animation: correctPulse 0.6s ease;
+      color: white;
+    }
+
+    .option-btn.wrong {
+      background: linear-gradient(135deg, #f44336, #d32f2f);
+      animation: wrongShake 0.6s ease;
+      color: white;
+    }
+
+    .option-btn:disabled {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    @keyframes correctPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes wrongShake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+      100% { transform: translateX(0); }
+    }
+
+    #feedback {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 20px 0;
+      min-height: 30px;
+      color: #333;
+    }
+
+    #feedback.correct {
+      color: #4CAF50;
+    }
+
+    #feedback.wrong {
+      color: #f44336;
+    }
+
+    #next-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      display: none;
+    }
+
+    #next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    #score {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 25px;
+      border-radius: 15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-top: 20px;
+      display: none;
+    }
+
+    #send-email-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      display: none;
+    }
+
+    #send-email-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      .quiz-container {
+        padding: 30px 20px;
+      }
+      .quiz-title {
+        font-size: 2.2rem;
+      }
+      #question-text {
+        font-size: 1.3rem;
+      }
+      #options-container {
+        gap: 15px;
+      }
+      .option-btn {
+        padding: 15px 15px;
+        font-size: 1rem;
+      }
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .loader {
+      width: 50px;
+      height: 50px;
+      border: 6px solid #ccc;
+      border-top: 6px solid #554cb5;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    #page-back-btn {
+  position: absolute; /* Position the button relative to the body */
+  top: 20px;          /* Space from the top */
+  left: 20px;         /* Space from the left */
+ background: linear-gradient(135deg, #764ba2, #554cb5);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+  z-index: 10;        /* Ensure the button is above other elements */
+}
+
+#page-back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px #fff;
+}
+#question-text {
+  display: flex;             /* Use Flexbox */
+  justify-content: center;   /* Center horizontally */
+  align-items: center;       /* Center vertically */
+  min-height: 100px;         /* Minimum height to give some space for centering */
+  position: relative;        /* Ensure position context for absolute centering */
+}
+  </style>
+</head>
+<body>
+  <button id="page-back-btn" type="button" aria-label="Go Back to Previous Page">⬅️ Go Back</button>
+
+  <div class="quiz-container" role="main" aria-label="JavaScript Quiz">
+    <h1 class="quiz-title">Css Quiz</h1>
+
+    <div id="question-text" aria-live="polite"><div class="loader"></div></div>
+
+    <div id="options-container" role="list" aria-label="Answer options">
+      <!-- Options inserted here -->
+    </div>
+
+    <div id="feedback" aria-live="assertive"></div>
+
+    <button id="next-btn" type="button" aria-label="Next Question">Next Question ➡️</button>
+
+    <div id="score" role="status" aria-live="polite"></div>
+    <button id="send-email-btn" type="button" aria-label="Send Email with Quiz Results">Send Email with Results</button>
+  </div>
+
+  <!-- jsPDF and EmailJS CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+
+  <script type="module">
+    const pageBackBtn = document.getElementById("page-back-btn");
+
+// Add event listener to the "Go Back" button
+pageBackBtn.addEventListener("click", () => {
+  window.history.back();  // Takes the user to the previous page in the browser history
+});
+
+    // EmailJS setup
+    emailjs.init("rLcng1dUdWCkdBLfi");
+
+    // Initialize Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtiBdHwYCV7vkHiuGZvHij7UxphP4g54E",
+      authDomain: "questionpro-99817.firebaseapp.com",
+      projectId: "questionpro-99817",
+      storageBucket: "questionpro-99817.appspot.com",
+      messagingSenderId: "70423030493",
+      appId: "1:70423030493:web:ae543436fc71bdab180934",
+      measurementId: "G-LL4TBWBTML"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const questionEl = document.getElementById("question-text");
+    const optionsEl = document.getElementById("options-container");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("next-btn");
+    const scoreBoxEl = document.getElementById("score");
+    const sendEmailBtn = document.getElementById("send-email-btn");
+
+    let questions = [];
+    let index = 0;
+    let score = 0;
+    let answered = false;
+    let userEmail = "";
+
+    const category = "css"; // hardcoded category for demo
+
+    // Check if the user is logged in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userEmail = user.email; // Get logged-in user's email
+        console.log("Logged in user email: ", userEmail);
+        loadQuestions();
+      } else {
+        console.log("User not logged in");
+        alert("Please log in first!");
+      }
+    });
+
+    async function loadQuestions() {
+      try {
+        const q = query(collection(db, "questions"), where("category", "==", category));
+        const snap = await getDocs(q);
+        questions = snap.docs.map(doc => doc.data());
+
+        if (questions.length === 0) {
+          questionEl.textContent = `❌ No questions found for "${category}"`;
+          return;
+        }
+        showQuestion();
+      } catch (err) {
+        console.error("Firestore error:", err);
+        questionEl.textContent = "⚠️ Error loading questions.";
+      }
+    }
+
+    function showQuestion() {
+      answered = false;
+      feedbackEl.textContent = "";
+      feedbackEl.className = "";
+      nextBtn.style.display = "none";
+
+      const q = questions[index];
+      questionEl.textContent = q.question;
+      optionsEl.innerHTML = "";
+
+      const order = ['A', 'B', 'C', 'D'];
+      order.forEach(key => {
+        if (q.options && q.options[key]) {
+          const btn = document.createElement("button");
+          btn.className = "option-btn";
+          btn.textContent = `${key}: ${q.options[key]}`;
+          btn.onclick = () => handleAnswer(key, q.correctAnswer, btn);
+          btn.setAttribute("aria-label", `Option ${key}: ${q.options[key]}`);
+          optionsEl.appendChild(btn);
+        }
+      });
+    }
+
+    function handleAnswer(selected, correct, btn) {
+      if (answered) return;
+      answered = true;
+
+      optionsEl.querySelectorAll("button").forEach(b => b.disabled = true);
+
+      if (selected === correct) {
+        btn.classList.add("correct");
+        feedbackEl.textContent = "✅ Correct!";
+        feedbackEl.classList.add("correct");
+        score++;
+      } else {
+        btn.classList.add("wrong");
+        feedbackEl.textContent = `❌ Correct answer: ${correct}`;
+        feedbackEl.classList.add("wrong");
+
+        optionsEl.querySelectorAll("button").forEach(b => {
+          if (b.textContent.startsWith(`${correct}:`)) {
+            b.classList.add("correct");
+          }
+        });
+      }
+
+      nextBtn.style.display = "inline-block";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      index++;
+      if (index >= questions.length) {
+        questionEl.textContent = "🎉 Quiz Completed!";
+        optionsEl.innerHTML = "";
+        feedbackEl.textContent = "";
+        nextBtn.style.display = "none";
+
+        scoreBoxEl.style.display = "block";
+        scoreBoxEl.textContent = `🏆 Final Score: ${score} / ${questions.length}`;
+
+        sendEmailBtn.style.display = "inline-block";  // Show the "Send Email" button
+      } else {
+        showQuestion();
+      }
+    });
+
+    sendEmailBtn.addEventListener("click", () => {
+      sendEmail(score, questions.length);
+    });
+
+    function sendEmail(score, total) {
+      const correctAnswers = score;
+      const wrongAnswers = total - score;
+      const percentage = (score / total) * 100;
+
+      const emailData = {
+        quiz_title: "Css Quiz",
+        total_questions: total,
+        correct_answers: correctAnswers,
+        wrong_answers: wrongAnswers,
+        score: `${score} / ${total}`,
+        percentage: `${percentage.toFixed(2)}%`,
+        email: userEmail  // User email
+      };
+
+      emailjs.send("service_a9z9syt", "template_b86gt9i", emailData)
+        .then((response) => {
+          console.log("Email sent successfully:", response);
+        })
+        .catch((error) => {
+          console.error("Error sending email:", error);
+          alert("Error sending email. Check the console for more details.");
+        });
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz Admin Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .selected { border: 2px solid #7f5af0; }
+    .correct { background-color: #d1fae5 !important; }
+    .card-shadow { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+    .btn-gradient { background: linear-gradient(to right, #7f5af0, #4361ee); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen">
+    <div id="toast-container" class="fixed bottom-5 right-5 space-y-2"></div>
+  <div class="container mx-auto px-6 py-8">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold mb-2">Quiz Admin Panel</h1>
+      <p class="text-gray-600">Create and manage programming quiz questions</p>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+      <!-- Main Form Area -->
+      <div class="xl:col-span-3 space-y-8">
+        <!-- Category Selection -->
+        <div class="bg-white rounded-2xl card-shadow p-8">
+          <h2 class="text-2xl font-bold mb-6">Select Category</h2>
+          <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="category-card bg-white rounded-xl p-6 text-center cursor-pointer" onclick="selectCategory('HTML', event)">
+              <div class="text-3xl mb-3">🌐</div>
+              <h3 class="font-bold text-lg">HTML</h3>
+              <p class="text-sm text-gray-500 mt-1">Markup Language</p>
+            </div>
+            <div class="category-card bg-white rounded-xl p-6 text-center cursor-pointer" onclick="selectCategory('Java', event)">
+              <div class="text-3xl mb-3">☕</div>
+              <h3 class="font-bold text-lg">Java</h3>
+              <p class="text-sm text-gray-500 mt-1">Object Oriented</p>
+            </div>
+            <div class="category-card bg-white rounded-xl p-6 text-center cursor-pointer" onclick="selectCategory('JavaScript', event)">
+              <div class="text-3xl mb-3">⚡</div>
+              <h3 class="font-bold text-lg">JavaScript</h3>
+              <p class="text-sm text-gray-500 mt-1">Web Scripting</p>
+            </div>
+            <div class="category-card bg-white rounded-xl p-6 text-center cursor-pointer" onclick="selectCategory('C', event)">
+              <div class="text-3xl mb-3">🔧</div>
+              <h3 class="font-bold text-lg">C</h3>
+              <p class="text-sm text-gray-500 mt-1">System Programming</p>
+            </div>
+            <div class="category-card bg-white rounded-xl p-6 text-center cursor-pointer" onclick="selectCategory('C++', event)">
+              <div class="text-3xl mb-3">⚙️</div>
+              <h3 class="font-bold text-lg">C++</h3>
+              <p class="text-sm text-gray-500 mt-1">Advanced C</p>
+            </div>
+          </div>
+        </div>
+        <!-- Question Type -->
+        <div class="bg-white rounded-2xl card-shadow p-8">
+          <h2 class="text-2xl font-bold mb-6">Question Type</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="question-type-card bg-white rounded-xl p-6 text-center cursor-pointer" onclick="selectQuestionType('single', event)">
+              <div class="text-4xl mb-4">🎯</div>
+              <h3 class="font-bold text-lg mb-2">Single Choice</h3>
+              <p class="text-sm text-gray-500">One correct answer from 4 options</p>
+            </div>
+            <div class="question-type-card bg-white rounded-xl p-6 text-center cursor-pointer" onclick="selectQuestionType('multiple', event)">
+              <div class="text-4xl mb-4">✅</div>
+              <h3 class="font-bold text-lg mb-2">Multiple Choice</h3>
+              <p class="text-sm text-gray-500">Multiple correct answers allowed</p>
+            </div>
+            <div class="question-type-card bg-white rounded-xl p-6 text-center cursor-pointer" onclick="selectQuestionType('two', event)">
+              <div class="text-4xl mb-4">⚖️</div>
+              <h3 class="font-bold text-lg mb-2">True/False</h3>
+              <p class="text-sm text-gray-500">Two options only</p>
+            </div>
+          </div>
+        </div>
+        <!-- Question Form -->
+        <div class="bg-white rounded-2xl card-shadow p-8">
+          <h2 class="text-2xl font-bold mb-6">Create Question</h2>
+          <form id="questionForm" class="space-y-8">
+            <div>
+              <label class="block text-lg font-semibold mb-3">Question <span id="wordCount" class="text-sm text-gray-500">(0/500 words)</span></label>
+              <div class="relative">
+                <textarea id="questionText" rows="5" maxlength="3000" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 text-lg resize-none" placeholder="Write your programming question here..." oninput="updateWordCount()"></textarea>
+                <div class="absolute bottom-2 right-2 flex items-center space-x-2">
+                  <div id="wordCountBadge" class="px-3 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">0/500</div>
+                  <div id="wordIndicator" class="w-2 h-2 bg-green-400 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-lg font-semibold mb-4">Answer Options</label>
+              <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- A, B, C, D option cards -->
+                <!-- Structure similar to user code -->
+                <div class="option-card rounded-2xl p-6 relative group cursor-pointer" onclick="toggleCorrectAnswer('A', event)">
+                  <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-bl-3xl flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">A</span>
+                  </div>
+                  <textarea id="optionA" rows="2" class="w-full text-lg bg-transparent border-none outline-none resize-none" placeholder="Enter option A..."></textarea>
+                  <div class="absolute bottom-2 left-4 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">Click to mark correct</div>
+                </div>
+                <div class="option-card rounded-2xl p-6 relative group cursor-pointer" onclick="toggleCorrectAnswer('B', event)">
+                  <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-bl-3xl flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">B</span>
+                  </div>
+                  <textarea id="optionB" rows="2" class="w-full text-lg bg-transparent border-none outline-none resize-none" placeholder="Enter option B..."></textarea>
+                  <div class="absolute bottom-2 left-4 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">Click to mark correct</div>
+                </div>
+                <div id="optionCContainer" class="option-card rounded-2xl p-6 relative group cursor-pointer" onclick="toggleCorrectAnswer('C', event)">
+                  <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-bl-3xl flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">C</span>
+                  </div>
+                  <textarea id="optionC" rows="2" class="w-full text-lg bg-transparent border-none outline-none resize-none" placeholder="Enter option C..."></textarea>
+                  <div class="absolute bottom-2 left-4 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">Click to mark correct</div>
+                </div>
+                <div id="optionDContainer" class="option-card rounded-2xl p-6 relative group cursor-pointer" onclick="toggleCorrectAnswer('D', event)">
+                  <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-red-400 to-pink-500 rounded-bl-3xl flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">D</span>
+                  </div>
+                  <textarea id="optionD" rows="2" class="w-full text-lg bg-transparent border-none outline-none resize-none" placeholder="Enter option D..."></textarea>
+                  <div class="absolute bottom-2 left-4 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">Click to mark correct</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border-l-4 border-purple-500">
+              <div class="flex items-start space-x-3">
+                <div class="text-2xl">💡</div>
+                <div>
+                  <h4 class="font-semibold text-gray-800 mb-1">Instructions</h4>
+                  <p id="instructionText" class="text-gray-600">Click on one option card to mark it as the correct answer.</p>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div id="message" class="message"></div>
+        <!-- Recent Questions -->
+        <div class="bg-white rounded-2xl card-shadow p-8">
+          <h3 class="text-xl font-bold mb-4">Recent Questions</h3>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button id="filter-all" onclick="filterQuestions('all')" class="filter-btn active px-3 py-1 text-xs font-medium rounded-full border-2 border-purple-200 text-purple-600 hover:bg-purple-50">All</button>
+            <button id="filter-HTML" onclick="filterQuestions('HTML')" class="filter-btn px-3 py-1 text-xs font-medium rounded-full border-2 border-blue-200 text-blue-600 hover:bg-blue-50">HTML</button>
+            <button id="filter-Java" onclick="filterQuestions('Java')" class="filter-btn px-3 py-1 text-xs font-medium rounded-full border-2 border-orange-200 text-orange-600 hover:bg-orange-50">Java</button>
+            <button id="filter-JavaScript" onclick="filterQuestions('JavaScript')" class="filter-btn px-3 py-1 text-xs font-medium rounded-full border-2 border-yellow-200 text-yellow-600 hover:bg-yellow-50">JS</button>
+            <button id="filter-C" onclick="filterQuestions('C')" class="filter-btn px-3 py-1 text-xs font-medium rounded-full border-2 border-gray-200 text-gray-600 hover:bg-gray-50">C</button>
+            <button id="filter-C++" onclick="filterQuestions('C++')" class="filter-btn px-3 py-1 text-xs font-medium rounded-full border-2 border-purple-200 text-purple-600 hover:bg-purple-50">C++</button>
+          </div>
+          <div id="questionsList" class="space-y-3 max-h-96 overflow-y-auto">
+            <div class="text-center text-gray-500 py-8">
+              <div class="text-4xl mb-2">📋</div>
+              <p>No questions added yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Stats -->
+      <div class="xl:col-span-1 space-y-6">
+        <div class="bg-white rounded-2xl p-6">
+          <h3 class="text-xl font-bold mb-4">Statistics</h3>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center p-3 bg-white rounded-lg">
+              <span class="font-medium">Total Questions</span>
+              <span id="totalQuestions" class="text-2xl font-bold">0</span>
+            </div>
+            <div class="space-y-2">
+              <div class="flex justify-between items-center p-2 bg-white rounded-lg">
+                <span class="flex items-center space-x-2"><span>🌐</span><span>HTML</span></span>
+                <span id="htmlCount" class="font-bold text-blue-600">0</span>
+              </div>
+              <div class="flex justify-between items-center p-2 bg-white rounded-lg">
+                <span class="flex items-center space-x-2"><span>☕</span><span>Java</span></span>
+                <span id="javaCount" class="font-bold text-orange-600">0</span>
+              </div>
+              <div class="flex justify-between items-center p-2 bg-white rounded-lg">
+                <span class="flex items-center space-x-2"><span>⚡</span><span>JavaScript</span></span>
+                <span id="jsCount" class="font-bold text-yellow-600">0</span>
+              </div>
+              <div class="flex justify-between items-center p-2 bg-white rounded-lg">
+                <span class="flex items-center space-x-2"><span>🔧</span><span>C</span></span>
+                <span id="cCount" class="font-bold text-gray-600">0</span>
+              </div>
+              <div class="flex justify-between items-center p-2 bg-white rounded-lg">
+                <span class="flex items-center space-x-2"><span>⚙️</span><span>C++</span></span>
+                <span id="cppCount" class="font-bold text-purple-600">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Add Button -->
+  <button id="addQuestionBtn" class="fixed bottom-8 right-8 btn-gradient text-white p-4 rounded-full shadow-lg" onclick="addQuestion()">
+    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+    </svg>
+  </button>
+
+  <!-- Firebase SDKs (Compat for browser) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      doc,
+      deleteDoc
+    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtiBdHwYCV7vkHiuGZvHij7UxphP4g54E",
+      authDomain: "questionpro-99817.firebaseapp.com",
+      databaseURL: "https://questionpro-99817-default-rtdb.firebaseio.com",
+      projectId: "questionpro-99817",
+      storageBucket: "questionpro-99817.appspot.com",
+      messagingSenderId: "70423030493",
+      appId: "1:70423030493:web:ae543436fc71bdab180934",
+      measurementId: "G-LL4TBWBTML"
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const questionsCol = collection(db, "questions");
+  
+    let questions = [];
+    let questionCounter = 1;
+    let selectedCategory = '';
+    let selectedQuestionType = 'single';
+    let correctAnswers = new Set();
+    let currentFilter = 'all';
+  
+    window.selectCategory = (category, event) => {
+      selectedCategory = category;
+      document.querySelectorAll('.category-card').forEach(card => card.classList.remove('selected'));
+      event.currentTarget.classList.add('selected');
+    };
+  
+    window.selectQuestionType = (type, event) => {
+      selectedQuestionType = type;
+      document.querySelectorAll('.question-type-card').forEach(card => card.classList.remove('selected'));
+      event.currentTarget.classList.add('selected');
+      updateOptionsDisplay();
+    };
+  
+    window.updateWordCount = () => {
+      const textarea = document.getElementById('questionText');
+      let text = textarea.value;
+      const maxChars = 500;
+  
+      if (text.length > maxChars) {
+        textarea.value = text.substring(0, maxChars);
+        text = textarea.value;
+      }
+  
+      const count = text.length;
+      document.getElementById('wordCount').textContent = `(${count}/${maxChars} characters)`;
+      document.getElementById('wordCountBadge').textContent = `${count}/${maxChars}`;
+  
+      const percentage = (count / maxChars) * 100;
+      const indicator = document.getElementById('wordIndicator');
+  
+      if (percentage <= 50) {
+        indicator.className = 'w-2 h-2 bg-green-400 rounded-full';
+      } else if (percentage <= 80) {
+        indicator.className = 'w-2 h-2 bg-yellow-400 rounded-full';
+      } else if (percentage <= 100) {
+        indicator.className = 'w-2 h-2 bg-orange-400 rounded-full';
+      } else {
+        indicator.className = 'w-2 h-2 bg-red-400 rounded-full animate-pulse';
+      }
+    };
+  
+    window.updateOptionsDisplay = () => {
+      const optionC = document.getElementById('optionCContainer');
+      const optionD = document.getElementById('optionDContainer');
+      const instructionText = document.getElementById('instructionText');
+      const optA = document.getElementById('optionA');
+      const optB = document.getElementById('optionB');
+  
+      correctAnswers.clear();
+      document.querySelectorAll('.option-card').forEach(c => c.classList.remove('correct'));
+  
+      if (selectedQuestionType === 'two') {
+        optionC.style.display = 'none';
+        optionD.style.display = 'none';
+        instructionText.textContent = 'Click on True or False to mark the correct answer.';
+        optA.value = 'True';
+        optB.value = 'False';
+        optA.readOnly = true;
+        optB.readOnly = true;
+      } else {
+        optionC.style.display = 'block';
+        optionD.style.display = 'block';
+        optA.value = '';
+        optB.value = '';
+        optA.readOnly = false;
+        optB.readOnly = false;
+        instructionText.textContent = selectedQuestionType === 'multiple'
+          ? 'Click on multiple option cards to mark them as correct answers.'
+          : 'Click on one option card to mark it as the correct answer.';
+      }
+    };
+  
+    window.toggleCorrectAnswer = (opt, event) => {
+      const card = event.currentTarget;
+      if (selectedQuestionType === 'single' || selectedQuestionType === 'two') {
+        correctAnswers.clear();
+        document.querySelectorAll('.option-card').forEach(c => c.classList.remove('correct'));
+        correctAnswers.add(opt);
+        card.classList.add('correct');
+      } else {
+        if (correctAnswers.has(opt)) {
+          correctAnswers.delete(opt);
+          card.classList.remove('correct');
+        } else {
+          correctAnswers.add(opt);
+          card.classList.add('correct');
+        }
+      }
+    };
+  
+    window.resetForm = () => {
+      ['questionText', 'optionA', 'optionB', 'optionC', 'optionD'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      correctAnswers.clear();
+      document.querySelectorAll('.option-card').forEach(c => c.classList.remove('correct'));
+      window.updateWordCount();
+    };
+  
+    window.addQuestionToList = (q, addToTop = true) => {
+      const list = document.getElementById('questionsList');
+      if (list.querySelector('.text-center')) list.innerHTML = '';
+  
+      const item = document.createElement('div');
+      item.className = 'bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 border-l-4 border-purple-500';
+      item.dataset.category = q.category;
+  
+      const categoryEmojis = { HTML: '🌐', Java: '☕', JavaScript: '⚡', C: '🔧', 'C++': '⚙️' };
+      const typeText = q.type === 'multiple' ? 'Multiple Choice'
+        : q.type === 'two' ? 'True/False'
+        : 'Single Choice';
+      const correctText = q.correctAnswers.join(', ');
+  
+      item.innerHTML = `
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-medium px-3 py-1 rounded-full bg-white text-purple-600 border border-purple-200">
+            ${categoryEmojis[q.category]} ${q.category}
+          </span>
+          <button onclick="deleteQuestion(${q.id})" class="text-red-500 hover:text-red-700 text-sm font-medium">🗑️ Delete</button>
+        </div>
+        <p class="text-sm font-medium text-gray-800 mb-2">${q.question}</p>
+        <div class="flex justify-between text-xs text-gray-600">
+          <span>${typeText}</span>
+          <span class="font-medium text-green-600">✓ ${correctText}</span>
+        </div>
+      `;
+  
+      addToTop ? list.insertBefore(item, list.firstChild) : list.appendChild(item);
+    };
+  
+    window.deleteQuestion = async (id) => {
+      const question = questions.find(q => q.id === id);
+      if (!question) return;
+  
+      if (question.docId) {
+        try {
+          await deleteDoc(doc(db, "questions", question.docId));
+          console.log('Deleted from Firestore:', question.docId);
+        } catch (err) {
+          console.error('Firestore delete error:', err);
+          alert('Error deleting question from database');
+          return;
+        }
+      }
+  
+      questions = questions.filter(q => q.id !== id);
+      updateStatistics();
+      refreshQuestionsList();
+    };
+  
+    window.filterQuestions = (category) => {
+      currentFilter = category;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`filter-${category}`).classList.add('active');
+      displayFilteredQuestions();
+    };
+  
+    window.displayFilteredQuestions = () => {
+      const list = document.getElementById('questionsList');
+      list.innerHTML = '';
+      const filtered = currentFilter === 'all'
+        ? questions
+        : questions.filter(q => q.category === currentFilter);
+  
+      if (!filtered.length) {
+        const emoji = currentFilter === 'all'
+          ? '📋'
+          : { HTML: '🌐', Java: '☕', JavaScript: '⚡', C: '🔧', 'C++': '⚙️' }[currentFilter] || '📋';
+        const msg = currentFilter === 'all'
+          ? 'No questions added yet'
+          : `No ${currentFilter} questions yet`;
+  
+        list.innerHTML = `
+          <div class="text-center text-gray-500 py-8">
+            <div class="text-4xl mb-2">${emoji}</div>
+            <p>${msg}</p>
+          </div>`;
+      } else {
+        filtered.sort((a, b) => b.id - a.id).forEach(q => addQuestionToList(q, false));
+      }
+    };
+  
+    window.refreshQuestionsList = () => displayFilteredQuestions();
+  
+    window.updateStatistics = () => {
+      document.getElementById('totalQuestions').textContent = questions.length;
+      const counts = { HTML: 0, Java: 0, JavaScript: 0, C: 0, 'C++': 0 };
+      questions.forEach(q => {
+        if (counts.hasOwnProperty(q.category)) counts[q.category]++;
+      });
+      document.getElementById('htmlCount').textContent = counts.HTML;
+      document.getElementById('javaCount').textContent = counts.Java;
+      document.getElementById('jsCount').textContent = counts.JavaScript;
+      document.getElementById('cCount').textContent = counts.C;
+      document.getElementById('cppCount').textContent = counts['C++'];
+    };
+  
+    window.addQuestion = async () => {
+      if (!selectedCategory) { 
+        showMessage('Please select a category first!', 'error');
+        return;
+      }
+  
+      const questionText = document.getElementById('questionText').value.trim();
+      const optA = document.getElementById('optionA').value.trim();
+      const optB = document.getElementById('optionB').value.trim();
+      const optC = document.getElementById('optionC').value.trim();
+      const optD = document.getElementById('optionD').value.trim();
+  
+      if (!questionText || !optA || !optB || (selectedQuestionType !== 'two' && (!optC || !optD))) {
+        showMessage('Please fill in the question and all required options!', 'error');
+        return;
+      }
+  
+      const allOptions = [optA, optB];
+      if (selectedQuestionType !== 'two') {
+        allOptions.push(optC, optD);
+      }
+  
+      const uniqueOptions = new Set(allOptions.map(opt => opt.toLowerCase()));
+      if (uniqueOptions.size === 1) {
+        showMessage('All options cannot be the same! Please provide different options.', 'error');
+        return;
+      }
+  
+      if (!correctAnswers.size) {
+        showMessage('Please select at least one correct answer!', 'error');
+        return;
+      }
+  
+      const question = {
+        category: selectedCategory,
+        type: selectedQuestionType,
+        question: questionText,
+        options: { A: optA, B: optB, C: optC, D: optD },
+        correctAnswers: Array.from(correctAnswers)
+      };
+  
+      try {
+        const docRef = await addDoc(questionsCol, question);
+        question.docId = docRef.id;
+        question.id = questionCounter++;
+  
+        questions.push(question);
+        addQuestionToList(question);
+        updateStatistics();
+        resetForm();
+  
+        showMessage('Question added successfully!', 'success');
+      } catch (err) {
+        console.error('Firestore save error:', err);
+        showMessage('Error saving question to database', 'error');
+      }
+    };
+  
+    window.onload = async () => {
+      updateOptionsDisplay();
+      try {
+        const snapshot = await getDocs(questionsCol);
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          data.docId = docSnap.id;
+          data.id = questionCounter++;
+          questions.push(data);
+          addQuestionToList(data, false);
+        });
+        updateStatistics();
+      } catch (err) {
+        console.error('Firestore load error:', err);
+      }
+    };
+  
+    // Show message to user
+    function showMessage(message, type) {
+      const messageElement = document.getElementById('message');
+      messageElement.textContent = message;
+  
+      // Set the class for success or error style
+      if (type === 'success') {
+        messageElement.classList.remove('bg-red-500', 'text-white');
+        messageElement.classList.add('bg-green-500', 'text-white');
+      } else {
+        messageElement.classList.remove('bg-green-500', 'text-white');
+        messageElement.classList.add('bg-red-500', 'text-white');
+      }
+  
+      // Display the message
+      messageElement.style.display = 'block';
+  
+      // Hide the message after 3 seconds
+      setTimeout(() => {
+        messageElement.style.display = 'none';
+      }, 3000);
+    }
+  </script>
+  
+  
+  
+  
+  
+</body>
+</html>
